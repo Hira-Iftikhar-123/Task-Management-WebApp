@@ -323,6 +323,12 @@ The client is configured to use the same origin for the API when `REACT_APP_API_
 - **Frontend:** `cd client && npm start` (runs on port 3000).
 - For local API, set `REACT_APP_API_URL=http://localhost:5000/api` in `client/.env` if needed (optional; default is `http://localhost:5000/api`).
 
+### If login/register fail on Vercel
+
+1. **Environment variables** – In Vercel → Project → Settings → Environment Variables, ensure `MONGODB_URI` and `JWT_SECRET` are set and apply to **Production** (and Preview if you use it).
+2. **MongoDB Atlas** – In Atlas → Network Access, add **0.0.0.0/0** (Allow access from anywhere) so Vercel’s serverless IPs can connect.
+3. **Function logs** – In Vercel → Project → Deployments → select a deployment → **Functions** → open the `/api` function and check **Logs** for DB or auth errors.
+
 ## License
 
 ISC
