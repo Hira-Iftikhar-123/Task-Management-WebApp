@@ -24,6 +24,26 @@ module.exports = async (req, res) => {
     if (rest) req.url += '?' + rest;
   }
 
+  // Ensure request body is available (Vercel serverless may not expose stream to Express)
+  if (req.method !== 'GET' && req.method !== 'HEAD' && req.body === undefined) {
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    const raw = Buffer.concat(chunks).toString('utf8');
+    try {
+      req.body = raw && /application\/json/i.test(req.headers['content-type'] || '')
+        ? JSON.parse(raw)
+        : {};
+    } catch {
+      req.body = {};
+    }
+  } else if (req.body && typeof req.body.then === 'function') {
+    try {
+      req.body = await req.body;
+    } catch {
+      req.body = {};
+    }
+  }
+
   try {
     await connectDB();
   } catch (err) {
