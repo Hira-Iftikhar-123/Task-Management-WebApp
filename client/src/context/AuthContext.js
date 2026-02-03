@@ -49,7 +49,11 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
       return { success: true };
     } catch (error) {
-      const msg = error.response?.data?.message || error.message || 'Registration failed';
+      const data = error.response?.data;
+      const msg =
+        data?.message === 'Server error' && data?.error
+          ? data.error
+          : data?.message || error.message || 'Registration failed';
       return { success: false, message: msg };
     }
   };
@@ -68,7 +72,11 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
       return { success: true };
     } catch (error) {
-      const msg = error.response?.data?.message || error.message || 'Login failed';
+      const data = error.response?.data;
+      const msg =
+        data?.message === 'Server error' && data?.error
+          ? data.error
+          : data?.message || error.message || 'Login failed';
       return { success: false, message: msg };
     }
   };

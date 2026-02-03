@@ -7,6 +7,7 @@ const getTasks = async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
     const search = (req.query.search || '').trim();
+    const status = req.query.status;
 
     const filter = { user: req.user._id };
     if (search) {
@@ -14,6 +15,9 @@ const getTasks = async (req, res) => {
         { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
       ];
+    }
+    if (status && ['Pending', 'In Progress', 'Completed'].includes(status)) {
+      filter.status = status;
     }
 
     const total = await Task.countDocuments(filter);

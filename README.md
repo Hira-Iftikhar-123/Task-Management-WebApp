@@ -109,9 +109,9 @@ Task-Management-WebApp/
 
 4. **Configure environment variables in `.env`:**
    ```env
-   PORT=5000
-   MONGODB_URI=your_mongodb_atlas_connection_string_here
-   JWT_SECRET=your_super_secret_jwt_key_here_change_this_in_production
+  PORT=5000
+  MONGODB_URI=mongodb+srv://iftikharhira947_db_user:E7pF4Ywcis9PNCYF@taskmanagementcluster.fvcfjmz.mongodb.net/?appName=TaskManagementCluster
+  JWT_SECRET=task-management-secret-key
    ```
 
    - Get your MongoDB Atlas connection string from your cluster's "Connect" button

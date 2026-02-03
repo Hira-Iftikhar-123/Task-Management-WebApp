@@ -38,7 +38,14 @@ const register = async (req, res) => {
       res.status(400).json({ message: 'Invalid user data' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    if (error.name === 'ValidationError') {
+      const first = Object.values(error.errors)[0];
+      return res.status(400).json({ message: first?.message || 'Validation failed' });
+    }
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 };
 
@@ -63,7 +70,11 @@ const login = async (req, res) => {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    if (error.name === 'ValidationError') {
+      const first = Object.values(error.errors)[0];
+      return res.status(400).json({ message: first?.message || 'Validation failed' });
+    }
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 };
 
