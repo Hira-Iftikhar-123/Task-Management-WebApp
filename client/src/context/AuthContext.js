@@ -15,29 +15,25 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(getStoredToken);
 
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      getUser();
-    } else {
+    if (!token) {
       setLoading(false);
+      return;
     }
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const apiBase =
+      process.env.REACT_APP_API_URL ||
+      (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:5000/api');
+    axios
+      .get(`${apiBase}/auth/me`)
+      .then((res) => setUser(res.data))
+      .catch(() => {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+        delete axios.defaults.headers.common['Authorization'];
+      })
+      .finally(() => setLoading(false));
   }, [token]);
-
-  // Get user from token
-  const getUser = async () => {
-    try {
-      const apiBase =
-        process.env.REACT_APP_API_URL ||
-        (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:5000/api');
-      const response = await axios.get(`${apiBase}/auth/me`);
-      setUser(response.data);
-    } catch (error) {
-      console.error('Get user error:', error);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Register user
   const register = async (name, email, password) => {
