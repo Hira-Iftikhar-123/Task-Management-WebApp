@@ -26,7 +26,10 @@ export const AuthProvider = ({ children }) => {
   // Get user from token
   const getUser = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth/me`);
+      const apiBase =
+        process.env.REACT_APP_API_URL ||
+        (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:5000/api');
+      const response = await axios.get(`${apiBase}/auth/me`);
       setUser(response.data);
     } catch (error) {
       console.error('Get user error:', error);
@@ -40,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth/register`,
+        `${process.env.REACT_APP_API_URL || (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:5000/api')}/auth/register`,
         { name, email, password }
       );
       const { token: newToken } = response.data;
@@ -60,7 +63,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth/login`,
+        `${process.env.REACT_APP_API_URL || (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:5000/api')}/auth/login`,
         { email, password }
       );
       const { token: newToken } = response.data;

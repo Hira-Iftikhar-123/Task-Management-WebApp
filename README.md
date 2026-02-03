@@ -39,6 +39,8 @@ A full-stack MERN (MongoDB, Express, React, Node.js) task management web applica
 
 ```
 Task-Management-WebApp/
+├── api/                    # Vercel serverless (Express API)
+│   └── [[...slug]].js      # Catch-all handler for /api/*
 ├── client/                 # React frontend
 │   ├── public/
 │   │   └── index.html
@@ -277,20 +279,49 @@ Each task contains:
    - Click "Edit" to update a task
    - Click "Delete" to remove a task
 
-## Deployment
+## Deployment (Vercel – frontend and backend)
 
-### Backend Deployment (Render/Railway/Vercel)
+The project is set up to deploy **both** the React frontend and the Express API on **Vercel** in a single project.
 
-1. Set environment variables in your hosting platform
-2. Update `MONGODB_URI` with your production MongoDB connection string
-3. Set a strong `JWT_SECRET`
-4. Deploy the server
+### 1. Push the repo to GitHub
 
-### Frontend Deployment (Vercel/Netlify)
+Ensure the repo is on GitHub (or another Git provider Vercel supports).
 
-1. Update `.env` with your backend API URL
-2. Build the app: `npm run build`
-3. Deploy the `build` folder
+### 2. Import the project on Vercel
+
+1. Go to [vercel.com](https://vercel.com) and sign in.
+2. Click **Add New** → **Project** and import your Git repository.
+3. Leave **Root Directory** as `.` (repo root).
+4. Vercel will use the root `package.json` and `vercel.json`:
+   - **Build Command:** `npm run build` (builds the client).
+   - **Output Directory:** `client/build`.
+   - The `api/` folder is deployed as serverless functions under `/api`.
+
+### 3. Set environment variables
+
+In the Vercel project → **Settings** → **Environment Variables**, add:
+
+| Name           | Value                          | Notes                    |
+|----------------|--------------------------------|---------------------------|
+| `MONGODB_URI`  | Your MongoDB Atlas connection string | Required for the API   |
+| `JWT_SECRET`   | A long random secret           | Required for auth        |
+
+Use the same values for **Production**, **Preview**, and **Development** if you use preview deployments.
+
+### 4. Deploy
+
+Click **Deploy**. After the build finishes:
+
+- **Frontend:** Served from the root (e.g. `https://your-project.vercel.app`).
+- **API:** Available at `https://your-project.vercel.app/api` (e.g. `/api/auth/login`, `/api/tasks`).
+
+The client is configured to use the same origin for the API when `REACT_APP_API_URL` is not set, so no extra env var is needed for the frontend on Vercel.
+
+### Local development
+
+- **API:** `cd server && npm run dev` (runs on port 5000).
+- **Frontend:** `cd client && npm start` (runs on port 3000).
+- For local API, set `REACT_APP_API_URL=http://localhost:5000/api` in `client/.env` if needed (optional; default is `http://localhost:5000/api`).
 
 ## License
 
