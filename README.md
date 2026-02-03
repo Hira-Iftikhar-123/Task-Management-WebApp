@@ -325,9 +325,10 @@ The client is configured to use the same origin for the API when `REACT_APP_API_
 
 ### If login/register fail on Vercel
 
-1. **Environment variables** – In Vercel → Project → Settings → Environment Variables, ensure `MONGODB_URI` and `JWT_SECRET` are set and apply to **Production** (and Preview if you use it).
-2. **MongoDB Atlas** – In Atlas → Network Access, add **0.0.0.0/0** (Allow access from anywhere) so Vercel’s serverless IPs can connect.
-3. **Function logs** – In Vercel → Project → Deployments → select a deployment → **Functions** → open the `/api` function and check **Logs** for DB or auth errors.
+1. **Environment variables** – In Vercel → Project → Settings → Environment Variables, ensure **both** `MONGODB_URI` and `JWT_SECRET` are set and apply to **Production** (and Preview if you use it). Then trigger a **Redeploy** so the new env vars are picked up.
+2. **Do not set `REACT_APP_API_URL`** for the Vercel deployment. The app uses the same origin (`window.location.origin/api`) so the frontend and API stay on one domain.
+3. **MongoDB Atlas** – In Atlas → Network Access, add **0.0.0.0/0** (Allow access from anywhere) so Vercel’s serverless IPs can connect.
+4. **Function logs** – In Vercel → Project → Deployments → select a deployment → **Functions** → open the `/api` function and check **Logs** for DB or auth errors.
 
 ## License
 

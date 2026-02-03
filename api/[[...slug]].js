@@ -14,6 +14,27 @@ async function connectDB() {
 }
 
 module.exports = async (req, res) => {
+  if (req.body && typeof req.body.then === 'function') {
+    try {
+      req.body = await req.body;
+    } catch {
+      req.body = {};
+    }
+  }
+  if (req.method !== 'GET' && req.method !== 'HEAD' && req.body === undefined) {
+    const chunks = [];
+    try {
+      for await (const chunk of req) chunks.push(chunk);
+      const raw = Buffer.concat(chunks).toString('utf8');
+      req.body =
+        raw && /application\/json/i.test(req.headers['content-type'] || '')
+          ? JSON.parse(raw)
+          : {};
+    } catch {
+      req.body = {};
+    }
+  }
+
   try {
     await connectDB();
   } catch (err) {

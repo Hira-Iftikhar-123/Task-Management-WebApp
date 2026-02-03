@@ -14,7 +14,6 @@ async function connectDB() {
 }
 
 module.exports = async (req, res) => {
-  // Restore original path so Express routes correctly (rewrite sends path in query)
   const path = req.query.path;
   if (path) {
     req.url = '/api/' + (Array.isArray(path) ? path.join('/') : path);
@@ -24,21 +23,23 @@ module.exports = async (req, res) => {
     if (rest) req.url += '?' + rest;
   }
 
-  // Ensure request body is available (Vercel serverless may not expose stream to Express)
-  if (req.method !== 'GET' && req.method !== 'HEAD' && req.body === undefined) {
-    const chunks = [];
-    for await (const chunk of req) chunks.push(chunk);
-    const raw = Buffer.concat(chunks).toString('utf8');
+  // Vercel may pass req.body as a Promise; ensure it's resolved before Express
+  if (req.body && typeof req.body.then === 'function') {
     try {
-      req.body = raw && /application\/json/i.test(req.headers['content-type'] || '')
-        ? JSON.parse(raw)
-        : {};
+      req.body = await req.body;
     } catch {
       req.body = {};
     }
-  } else if (req.body && typeof req.body.then === 'function') {
+  }
+  if (req.method !== 'GET' && req.method !== 'HEAD' && req.body === undefined) {
+    const chunks = [];
     try {
-      req.body = await req.body;
+      for await (const chunk of req) chunks.push(chunk);
+      const raw = Buffer.concat(chunks).toString('utf8');
+      req.body =
+        raw && /application\/json/i.test(req.headers['content-type'] || '')
+          ? JSON.parse(raw)
+          : {};
     } catch {
       req.body = {};
     }
